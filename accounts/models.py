@@ -6,7 +6,6 @@ import uuid
 
 class CustomUser(AbstractUser):
     email = models.CharField(max_length=255, unique=True)
-    password = models.TextField()
     is_confirmed = models.BooleanField()
 
     objects = CustomUserManager()
@@ -22,15 +21,18 @@ class EmailConfirmation(models.Model):
 
 
 class UserProfile(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Мужской'),
+        ('W', 'Женский'),
+    ]
     user = models.OneToOneField(CustomUser,  related_name='user_profile', on_delete=models.CASCADE)
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
-    image = models.BigIntegerField()
-    gender = models.CharField(max_length=255)
-    phone_number = models.CharField(max_length=255)
-    bio = models.TextField()
-    image = models.ImageField()
-    created_at = models.DateField()
+    image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    phone_number = models.CharField(max_length=255, blank=True)
+    bio = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'UserProfile'
