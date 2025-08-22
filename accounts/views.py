@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from rest_framework import generics
-from .models import CustomUser
+from rest_framework import generics, permissions
+from .models import CustomUser, UserProfile
 from rest_framework.response import Response
 from .models import CustomUser, EmailConfirmation
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, ChangePasswordSerializer
+from .serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, ChangePasswordSerializer, UserProfileSerializer
 from rest_framework import status       
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -96,3 +96,16 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response({"message": "Пароль успешно изменён."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile
+    
+
+

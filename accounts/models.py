@@ -6,7 +6,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 class CustomUser(AbstractUser):
-    email = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True)
     is_confirmed = models.BooleanField(default=False)
 
     objects = CustomUserManager()

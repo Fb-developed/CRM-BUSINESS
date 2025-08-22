@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, EmailConfirmation
+from .models import CustomUser, EmailConfirmation, UserProfile
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from django.conf import settings
@@ -23,7 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         send_mail(
             subject="Подтвердите ваш email",
             message=f"Перейдите по ссылке для подтверждения: {confirm_link}",
-            from_email="rmaks8048@gmail.com",
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )
@@ -122,3 +122,9 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         return user
+    
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['firstname', 'lastname', 'image', 'gender', 'phone_number', 'bio']
