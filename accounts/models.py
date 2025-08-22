@@ -2,15 +2,19 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
 import uuid
-
+from django.utils import timezone
+from datetime import timedelta
 
 class CustomUser(AbstractUser):
     email = models.CharField(max_length=255, unique=True)
-    is_confirmed = models.BooleanField()
+    is_confirmed = models.BooleanField(default=False)
 
     objects = CustomUserManager()
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    def __str__(self):
+        return self.username
 
 
 
@@ -18,6 +22,10 @@ class EmailConfirmation(models.Model):
     user = models.OneToOneField(CustomUser, related_name='confirmation', on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid.uuid4, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_expired(self):
+        expiration_time = self.created_at + timedelta(hours=24)
+        return timezone.now() > expiration_time
 
 
 class UserProfile(models.Model):
