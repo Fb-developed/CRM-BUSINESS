@@ -1,6 +1,9 @@
 from django.db import models
 from accounts.models import CustomUser as User
-
+import qrcode
+from PIL import Image
+from io import BytesIO
+from django.core.files import File
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -43,7 +46,7 @@ class ShopMember(models.Model):
         return f"{self.user.username} – {self.get_role_display()}"
 
     class Meta:
-        db_table = 'Shop_member'
+        db_table = 'ShopMember'
 
 
 
@@ -58,6 +61,27 @@ class Product(models.Model):
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.qr_code:
+            qr_text = self.barcode 
+            qr_img = qrcode.make(qr_text)
+
+            canvas = Image.new('RGB', (290, 290), 'white')
+            qr_img = qr_img.resize((290, 290))
+            canvas.paste(qr_img)
+
+            buffer = BytesIO()
+            canvas.save(buffer, 'PNG')
+            buffer.seek(0)
+
+            filename = f'qr_code_{self.id}.png'
+            self.qr_code.save(filename, File(buffer), save=False)
+            canvas.close()
+
+            super().save(update_fields=['qr_code'])
 
     def __str__(self):
         return self.name
