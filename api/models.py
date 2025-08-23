@@ -1,5 +1,10 @@
 from django.db import models
 from accounts.models import CustomUser as User
+import qrcode
+from PIL import Image
+from io import BytesIO
+from django.core.files import File
+
 
 
 class Category(models.Model):
@@ -58,16 +63,39 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     cost_price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.CharField(max_length=255)
+    image = models.ImageField()
+    qr_code = models.ImageField(upload_to='media/qr_codes/', blank=True)
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.qr_code:
+            qr_text = self.barcode 
+            qr_img = qrcode.make(qr_text)
+
+            canvas = Image.new('RGB', (290, 290), 'white')
+            qr_img = qr_img.resize((290, 290))
+            canvas.paste(qr_img)
+
+            buffer = BytesIO()
+            canvas.save(buffer, 'PNG')
+            buffer.seek(0)
+
+            filename = f'qr_code_{self.id}.png'
+            self.qr_code.save(filename, File(buffer), save=False)
+            canvas.close()
+
+            super().save(update_fields=['qr_code'])
 
     def __str__(self):
         return self.name
 
     class Meta:
         db_table = 'Product'
+
 
 
 class Stock(models.Model):
