@@ -5,11 +5,9 @@ from PIL import Image
 from io import BytesIO
 from django.core.files import File
 
-
-
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -19,16 +17,18 @@ class Category(models.Model):
 
 
 class Shop(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE) 
     name = models.CharField(max_length=255)
     address = models.TextField()
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        db_table = 'Shop'
+        db_table = "Shop"
+        verbose_name = "Магазин"
+        verbose_name_plural = "Магазины"
 
 
 class ShopMember(models.Model):
@@ -39,32 +39,25 @@ class ShopMember(models.Model):
     ]
 
     shop = models.ForeignKey(Shop, related_name="members", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name="memberships", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="membershops", on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
     def __str__(self):
         return f"{self.user.username} – {self.get_role_display()}"
 
     class Meta:
-        db_table = 'Shop_member'
-        unique_together = ('shop', 'user')
+        db_table = 'ShopMember'
 
 
-    def __str__(self):
-        return f"{self.user} – {self.role}"
-
-    class Meta:
-        db_table = 'Shop_member'
 
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, related_name='products', on_delete=models.CASCADE)
     cost_price = models.DecimalField(max_digits=8, decimal_places=2)
     image = models.ImageField()
-    qr_code = models.ImageField(upload_to='media/qr_codes/', blank=True)
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
@@ -97,12 +90,11 @@ class Product(models.Model):
         db_table = 'Product'
 
 
-
 class Stock(models.Model):
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, related_name='stocks', on_delete=models.CASCADE)
     quantity = models.BigIntegerField()
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         db_table = 'Stock'
@@ -139,7 +131,7 @@ class PaymentMethod(models.Model):
 
     name = models.CharField(max_length=20, choices=PAYMENT_CHOICES, unique=True)
 
-    def str(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -158,8 +150,12 @@ class FinancialRecord(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField()
-    type = models.CharField(max_length=255, choices=FINANCIAL_TYPE_CHOICES)
-    created_at = models.DateField()
+    type = models.CharField(max_length=20, choices=FINANCIAL_TYPE_CHOICES)
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_type_display()} - {self.amount} ({self.category})"
 
     class Meta:
         db_table = 'FinancialRecord'
+
