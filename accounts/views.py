@@ -107,5 +107,3 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
     
-
-
