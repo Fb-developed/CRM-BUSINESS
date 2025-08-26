@@ -13,8 +13,6 @@ class ProductListCreate(APIView):
 
     def get(self, request):
 
-        # Получить список продуктов, доступных пользователю по его ролям.
-        # Суперпользователь видит все продукты.
         if request.user.is_superuser:
             products = Product.objects.all()
         else:
@@ -48,7 +46,6 @@ class ProductDetail(APIView):
 
     def get_object(self, pk, request):
 
-        # Получаем продукт по pk и проверяем права доступа.
         
         product = get_object_or_404(Product, pk=pk)
         self.check_object_permissions(request, product)
@@ -85,7 +82,6 @@ class ShopListCreate(APIView):
     permission_classes = [IsAuthenticated, RolePermission]
 
     def get(self, request):
-        # Получить список магазинов, доступных пользователю.
         shops = []
         for shop in Shop.objects.all():
             try:
@@ -97,7 +93,6 @@ class ShopListCreate(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        # Создать магазин, автоматически привязав пользователя как владельца.
 
         serializer = ShopSerializer(data=request.data)
         if serializer.is_valid():

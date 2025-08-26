@@ -5,7 +5,6 @@ from .models import (
 )
 
 
-# ---------------------- Product ----------------------
 
 class ProductSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all()
@@ -36,8 +35,6 @@ class ProductSerializer(serializers.ModelSerializer):
         return stock.quantity if stock else 0
 
 
-# ---------------------- Shop ----------------------
-
 class ShopSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
 
@@ -47,16 +44,12 @@ class ShopSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "created_at", "user")
 
 
-# ---------------------- Category ----------------------
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
         read_only_fields = ("id", "created_at")
 
-
-# ---------------------- ShopMember ----------------------
 
 class ShopMemberSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
@@ -69,7 +62,6 @@ class ShopMemberSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user', 'shop', 'role_display')
 
 
-# ---------------------- Stock ----------------------
 
 class StockSerializer(serializers.ModelSerializer):
     product = serializers.CharField(source='product.name', read_only=True)
@@ -81,7 +73,6 @@ class StockSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'created_at', 'product', 'shop')
 
 
-# ---------------------- Transaction ----------------------
 
 class TransactionSerializer(serializers.ModelSerializer):
     product = serializers.CharField(source='product.name', read_only=True)
@@ -97,7 +88,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
 
 
-# ---------------------- Payment Method ----------------------
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -106,7 +96,6 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-# ---------------------- Financial Record ----------------------
 
 class FinancialRecordSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
