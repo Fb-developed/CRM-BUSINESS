@@ -7,3 +7,5 @@ urlpatterns = [
     path('shops/', ShopListCreate.as_view(), name='shop-list-create'),
     path('transactions/', TransactionListCreate.as_view(), name='transaction-list-create'),
 ]
+
+

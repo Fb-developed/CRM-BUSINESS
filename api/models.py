@@ -62,6 +62,8 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
+    size = models.CharField(null=True, blank=True)
+    color = models.CharField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -160,12 +162,6 @@ class FinancialRecord(models.Model):
     class Meta:
         db_table = 'FinancialRecord'
 
-from django.db import models
-from accounts.models import CustomUser as User
-import qrcode
-from PIL import Image
-from io import BytesIO
-from django.core.files import File
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
