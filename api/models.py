@@ -258,27 +258,7 @@ class Stock(models.Model):
     class Meta:
         db_table = 'Stock'
 
-
-class Transaction(models.Model):
-    TRANSACTION_TYPE_CHOICES = [
-        ('in', 'Поступление'),
-        ('out', 'Продажа'),
-        ('adj', 'Корректировка'),
-    ]
-
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, default='out')
-    selling_price = models.DecimalField(max_digits=10, decimal_places=2) 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
-    payment_method = models.ForeignKey("PaymentMethod", on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'Transaction'
-
-
+        
 
 class PaymentMethod(models.Model):
     PAYMENT_CHOICES = [
@@ -295,6 +275,28 @@ class PaymentMethod(models.Model):
 
     class Meta:
         db_table = 'PaymentMethod'
+
+
+class Transaction(models.Model):
+    TRANSACTION_TYPE_CHOICES = [
+        ('in', 'Поступление'),
+        ('out', 'Продажа'),
+        ('adj', 'Корректировка'),
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, default='out')
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Transaction'
+
+
 
 
 
