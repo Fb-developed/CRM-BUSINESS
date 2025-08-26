@@ -4,6 +4,7 @@ import qrcode
 from PIL import Image
 from io import BytesIO
 from django.core.files import File
+import uuid
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -61,30 +62,25 @@ class Product(models.Model):
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
-    qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     size = models.CharField(null=True, blank=True)
     color = models.CharField(null=True, blank=True)
+    qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
 
-        if not self.qr_code:
-            qr_text = self.barcode 
-            qr_img = qrcode.make(qr_text)
-
-            canvas = Image.new('RGB', (290, 290), 'white')
-            qr_img = qr_img.resize((290, 290))
-            canvas.paste(qr_img)
-
+        if (not self.pk or not self.qr_code) and self.barcode:
+            # Генерация QR-кода
+            qr_img = qrcode.make(self.barcode)
+        
+            # Сохранение в буфер
             buffer = BytesIO()
-            canvas.save(buffer, 'PNG')
-            buffer.seek(0)
+            qr_img.save(buffer, 'PNG')
 
-            filename = f'qr_code_{self.id}.png'
+            # Сохранение в ImageField с уникальным именем файла
+            filename = f'qr_code_{uuid.uuid4().hex}.png'
             self.qr_code.save(filename, File(buffer), save=False)
-            canvas.close()
-
-            super().save(update_fields=['qr_code'])
+        
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -96,11 +92,12 @@ class Product(models.Model):
 class Stock(models.Model):
     product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, related_name='stocks', on_delete=models.CASCADE)
-    quantity = models.BigIntegerField()
+    quantity = models.PositiveIntegerField()
     created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         db_table = 'Stock'
+        unique_together = ('product', 'shop')
 
 
 class Transaction(models.Model):
@@ -111,7 +108,6 @@ class Transaction(models.Model):
     ]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, default='out')
     selling_price = models.DecimalField(max_digits=10, decimal_places=2) 
@@ -132,13 +128,18 @@ class PaymentMethod(models.Model):
         ('OTHER', 'Другой'),
     ]
 
-    name = models.CharField(max_length=20, choices=PAYMENT_CHOICES, unique=True)
+    name = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='payment_methods')
+
 
     def __str__(self):
         return self.name
 
     class Meta:
         db_table = 'PaymentMethod'
+        unique_together = ('shop', 'name')
+        verbose_name = "Способ оплаты"
+        verbose_name_plural = "Способы оплаты"
 
 
 
