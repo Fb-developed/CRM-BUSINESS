@@ -39,7 +39,7 @@ class UserProfile(models.Model):
     image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
     phone_number = models.CharField(max_length=255, blank=True)
-    bio = models.TextField(blank=True)
+    age = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
