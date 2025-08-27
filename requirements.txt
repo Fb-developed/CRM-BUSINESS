@@ -1,5 +1,6 @@
 asgiref==3.9.1
 Django==5.2.5
+django-cors-headers==4.7.0
 django-filter==25.1
 django-unfold==0.65.0
 djangorestframework==3.16.1
@@ -12,5 +13,7 @@ PyJWT==2.10.1
 pytz==2025.2
 PyYAML==6.0.2
 qrcode==8.2
+setuptools==80.9.0
 sqlparse==0.5.3
 uritemplate==4.2.0
+wheel==0.45.1
