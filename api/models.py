@@ -18,9 +18,15 @@ class Category(models.Model):
 
 
 class Shop(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) 
+    SHOP_TYPE_CHOICES = [
+        ('online', 'Онлайн-магазин'),
+        ('offline', 'Офлайн-магазин'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    address = models.TextField()
+    shop_type = models.CharField(choices=SHOP_TYPE_CHOICES,default='offline',)
+    address = models.TextField(null=True, blank=True,)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -30,6 +36,7 @@ class Shop(models.Model):
         db_table = "Shop"
         verbose_name = "Магазин"
         verbose_name_plural = "Магазины"
+
 
 
 class ShopMember(models.Model):
