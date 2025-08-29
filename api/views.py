@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from .models import Product, Shop, Transaction, Notification
 from .serializers import ProductSerializer, ShopSerializer, TransactionSerializer, NotificationSerializer
@@ -145,3 +145,44 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user)
 
+
+
+
+
+# from rest_framework import viewsets, status
+# from rest_framework.response import Response
+# from rest_framework.permissions import AllowAny
+# from django.shortcuts import get_object_or_404
+# from .models import Product, Shop, Transaction, Notification
+# from .serializers import ProductSerializer, ShopSerializer, TransactionSerializer, NotificationSerializer
+
+
+# class ProductViewSet(viewsets.ModelViewSet):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = [AllowAny]
+
+
+# class ShopViewSet(viewsets.ModelViewSet):
+#     queryset = Shop.objects.all()
+#     serializer_class = ShopSerializer
+#     permission_classes = [AllowAny]
+
+#     # def perform_create(self, serializer):
+#     #     # Агар user лозим бошад дар модели Shop
+#     #     serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+
+
+# class TransactionViewSet(viewsets.ModelViewSet):
+#     queryset = Transaction.objects.all()
+#     serializer_class = TransactionSerializer
+#     permission_classes = [AllowAny]
+
+#     # def perform_create(self, serializer):
+#     #     serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+
+
+# class NotificationViewSet(viewsets.ModelViewSet):
+#     queryset = Notification.objects.all()
+#     serializer_class = NotificationSerializer
+#     permission_classes = [AllowAny]
