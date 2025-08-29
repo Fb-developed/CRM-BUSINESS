@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import Product, Shop, Transaction
-from .serializers import ProductSerializer, ShopSerializer, TransactionSerializer
+from .models import Product, Shop, Transaction, Notification
+from .serializers import ProductSerializer, ShopSerializer, TransactionSerializer, NotificationSerializer
 from .permissions import RolePermission
 
 
@@ -133,3 +133,15 @@ class TransactionListCreate(APIView):
                 return Response({"detail": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
