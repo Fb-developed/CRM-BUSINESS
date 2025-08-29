@@ -149,40 +149,113 @@
 
 
 
-from rest_framework import viewsets, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework.permissions import AllowAny # Импорти нави AllowAny
 from django.shortcuts import get_object_or_404
 from .models import Product, Shop, Transaction, Notification
 from .serializers import ProductSerializer, ShopSerializer, TransactionSerializer, NotificationSerializer
+from rest_framework import viewsets
 
 
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [AllowAny]
+# Инҷо мо IsAuthenticated ва RolePermission-ро бо AllowAny иваз кардем.
+# Ин маънои онро дорад, ки ҳар як истифодабаранда метавонад ба ин view дастрасӣ дошта бошад.
+
+class ProductListCreate(APIView):
+    permission_classes = [AllowAny] # Иҷозатҳои оммавӣ
+
+    def get(self, request):
+        # Ҳамаи маҳсулотро дастрас кардан (бе филтр)
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Эҷоди маҳсулоти нав (дастрас барои ҳама)
+        serializer = ProductSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            product = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ShopViewSet(viewsets.ModelViewSet):
-    queryset = Shop.objects.all()
-    serializer_class = ShopSerializer
-    permission_classes = [AllowAny]
+class ProductDetail(APIView):
+    permission_classes = [AllowAny] # Иҷозатҳои оммавӣ
 
-    # def perform_create(self, serializer):
-    #     # Агар user лозим бошад дар модели Shop
-    #     serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+    def get_object(self, pk, request):
+        product = get_object_or_404(Product, pk=pk)
+        return product
+
+    def get(self, request, pk):
+        product = self.get_object(pk, request)
+        serializer = ProductSerializer(product, context={'request': request})
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        product = self.get_object(pk, request)
+        serializer = ProductSerializer(product, data=request.data, partial=False, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        product = self.get_object(pk, request)
+        serializer = ProductSerializer(product, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        product = self.get_object(pk, request)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TransactionViewSet(viewsets.ModelViewSet):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
-    permission_classes = [AllowAny]
+class ShopListCreate(APIView):
+    permission_classes = [AllowAny] # Иҷозатҳои оммавӣ
 
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user if self.request.user.is_authenticated else None)
+    def get(self, request):
+        # Ҳамаи мағозаҳоро дастрас кардан (бе филтр)
+        shops = Shop.objects.all()
+        serializer = ShopSerializer(shops, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Эҷоди мағозаи нав (дастрас барои ҳама)
+        serializer = ShopSerializer(data=request.data)
+        if serializer.is_valid():
+            shop = serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TransactionListCreate(APIView):
+    permission_classes = [AllowAny] # Иҷозатҳои оммавӣ
+
+    def get(self, request):
+        # Ҳамаи транзаксияҳоро дастрас кардан (бе филтр)
+        transactions = Transaction.objects.all()
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Эҷоди транзаксияи нав (дастрас барои ҳама)
+        serializer = TransactionSerializer(data=request.data)
+        if serializer.is_valid():
+            transaction = serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
+    permission_classes = [AllowAny] # Иҷозатҳои оммавӣ
     serializer_class = NotificationSerializer
-    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        # Ин қисм бояд тағир дода шавад, зеро Notification.objects.filter(user=self.request.user)
+        # ба корбари воридшуда ниёз дорад. Агар AllowAny бошад, self.request.user метавонад AnonymousUser бошад.
+        # Агар шумо хоҳед, ки ҳамаи notifications-ро нишон диҳед, queryset-ро ба ин тағйир диҳед:
+        return Notification.objects.all()
