@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Product, Shop, Category, ShopMember,
-    Stock, Transaction, PaymentMethod, FinancialRecord
+    Stock, Transaction, PaymentMethod, FinancialRecord, Notification
 )
 
 
@@ -105,3 +105,11 @@ class FinancialRecordSerializer(serializers.ModelSerializer):
         model = FinancialRecord
         fields = "__all__"
         read_only_fields = ('id', 'created_at', 'user', 'shop')
+
+
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
