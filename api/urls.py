@@ -1,11 +1,15 @@
-from django.urls import path
-from .views import ProductListCreate, ProductDetail, ShopListCreate, TransactionListCreate
+from rest_framework.routers import DefaultRouter
+from .views import *
 
-urlpatterns = [
-    path('products/', ProductListCreate.as_view(), name='product-list-create'),
-    path('products/<int:pk>/', ProductDetail.as_view(), name='product-detail'),
-    path('shops/', ShopListCreate.as_view(), name='shop-list-create'),
-    path('transactions/', TransactionListCreate.as_view(), name='transaction-list-create'),
-]
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet)
+router.register(r'shops', ShopViewSet)
+router.register(r'shop-members', ShopMemberViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'stocks', StockViewSet)
+router.register(r'transactions', TransactionViewSet)
+router.register(r'payment-methods', PaymentMethodViewSet)
+router.register(r'financial-records', FinancialRecordViewSet)
+router.register(r'notifications', NotificationViewSet)
 
-
+urlpatterns = router.urls
