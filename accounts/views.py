@@ -4,7 +4,7 @@ from .models import CustomUser, UserProfile
 from rest_framework.response import Response
 from .models import CustomUser, EmailConfirmation
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer,PasswordResetConfirmSerializer, ChangePasswordSerializer, UserProfileSerializer, ConfirmCodeSerializer
+from .serializers import RegisterSerializer,LoginSerializer, PasswordResetRequestSerializer,PasswordResetConfirmSerializer, ChangePasswordSerializer, UserProfileSerializer, ConfirmCodeSerializer, ResendConfirmationCodeSerializer
 from rest_framework import status       
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,6 +14,18 @@ from rest_framework.permissions import IsAuthenticated
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
+
+
+
+
+class ResendConfirmationCodeView(APIView):
+    def post(self, request):
+        serializer = ResendConfirmationCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Код отправлен повторно'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ConfirmCodeView(APIView):
