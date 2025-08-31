@@ -20,10 +20,8 @@ class RolePermission(permissions.BasePermission):
                 if obj.shop.id in manager_shops:
                     if request.method in permissions.SAFE_METHODS:
                         return True  
-                    elif request.method in ['POST', 'PUT', 'PATCH']:
+                    elif request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
                         return True  
-                    elif request.method == 'DELETE':
-                        return False  
                 return False
 
 

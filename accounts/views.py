@@ -4,7 +4,7 @@ from .models import CustomUser, UserProfile
 from rest_framework.response import Response
 from .models import CustomUser, EmailConfirmation
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, ChangePasswordSerializer, UserProfileSerializer
+from .serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer,PasswordResetConfirmSerializer, ChangePasswordSerializer, UserProfileSerializer, ConfirmCodeSerializer
 from rest_framework import status       
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,18 +15,17 @@ class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
 
-class ConfirmEmailView(APIView):
-    def get(self, request, token):
-        try:
-            confirm = EmailConfirmation.objects.get(token = token)
-            user = confirm.user
-            user.is_confirmed = True
-            user.is_active =True
-            user.save()
-            confirm.delete()
-            return Response({'message':'Email confirmed.'}, status=status.HTTP_200_OK)
-        except EmailConfirmation.DoesNotExist:
-            return Response({'errors':'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ConfirmCodeView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        EmailConfirmation.delete_expired()
+        serializer = ConfirmCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Email подтверждён.'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
 class LoginView(APIView):
@@ -67,24 +66,26 @@ class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = PasswordResetRequestSerializer(data = request.data)
+        EmailConfirmation.delete_expired()
+        serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Ссылка для сброса пароля отправлена на почту.'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Код для сброса пароля отправлен на почту.'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
-    def post(self, request, token):
-        data = request.data.copy()
-        data['token'] = token
-        serializer = PasswordResetConfirmSerializer(data = data)
+    def post(self, request):
+        EmailConfirmation.delete_expired()
+        serializer = PasswordResetConfirmSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message':'Пароль успешно изменён'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Пароль успешно изменён.'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 class ChangePasswordView(APIView):

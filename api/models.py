@@ -15,6 +15,8 @@ class Category(models.Model):
 
     class Meta:
         db_table = 'Category'
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
 
 class Shop(models.Model):
@@ -69,8 +71,8 @@ class Product(models.Model):
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
-    size = models.CharField(null=True, blank=True)
-    color = models.CharField(null=True, blank=True)
+    size = models.CharField(max_length=50, null=True, blank=True)
+    color = models.CharField(max_length=50, null=True, blank=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -172,10 +174,6 @@ class FinancialRecord(models.Model):
 
 
 
-
-
-from django.db import models
-from accounts.models import CustomUser as User
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
