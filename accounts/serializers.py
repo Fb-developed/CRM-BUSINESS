@@ -182,4 +182,4 @@ class ChangePasswordSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['firstname', 'lastname', 'image', 'gender', 'phone_number', 'bio']
+        fields = ['firstname', 'lastname', 'image', 'gender', 'phone_number']
