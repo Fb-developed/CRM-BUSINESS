@@ -9,11 +9,14 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
+
 
 
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
+
 
 
 
@@ -28,9 +31,11 @@ class ResendConfirmationCodeView(APIView):
 
 
 
+
 class ConfirmCodeView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(request_body=ConfirmCodeSerializer)
     def post(self, request):
         EmailConfirmation.delete_expired()
         serializer = ConfirmCodeSerializer(data=request.data)
@@ -43,6 +48,7 @@ class ConfirmCodeView(APIView):
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         serializer = LoginSerializer( data = request.data )
 
@@ -64,6 +70,7 @@ class LoginView(APIView):
     
 
 class LogoutView(APIView):
+
     def post(self, request):
         try:
             refresh_token = request.data["refresh"]
@@ -77,6 +84,7 @@ class LogoutView(APIView):
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(request_body=PasswordResetRequestSerializer)
     def post(self, request):
         EmailConfirmation.delete_expired()
         serializer = PasswordResetRequestSerializer(data=request.data)
@@ -90,6 +98,7 @@ class PasswordResetRequestView(APIView):
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(request_body=PasswordResetConfirmSerializer)
     def post(self, request):
         EmailConfirmation.delete_expired()
         serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -103,6 +112,7 @@ class PasswordResetConfirmView(APIView):
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(request_body=ChangePasswordSerializer)
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -115,7 +125,8 @@ class ChangePasswordView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    
+    @swagger_auto_schema(request_body=UserProfileSerializer)
     def get_object(self):
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
