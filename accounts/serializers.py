@@ -94,9 +94,11 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(username=username, password=password)
 
         if not user:
-            raise serializers.ValidationError('Неверное имя пользователя или пароль.')
+            raise serializers.ValidationError('Аккаунт с таким именем или паролем не сущестувет!')
         if not user.is_active:
             raise serializers.ValidationError('Аккаунт неактивен.')
+        if not password or not username:
+            raise serializers.ValidationError('Неверный пароль, или имя пользователя')
         
         data['user'] = user
         return data

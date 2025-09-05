@@ -67,7 +67,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     shop = models.ForeignKey(Shop, related_name='products', on_delete=models.CASCADE)
     cost_price = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.ImageField()
+    image = models.ImageField(null=True, blank=True)
     barcode = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
@@ -116,7 +116,7 @@ class Transaction(models.Model):
         ('adj', 'Корректировка'),
     ]
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='product_transaction', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES, default='out')
     selling_price = models.DecimalField(max_digits=10, decimal_places=2) 
