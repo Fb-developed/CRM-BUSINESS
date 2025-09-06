@@ -7,12 +7,8 @@ from .models import (
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all()
-    )
-
-
-    shop = serializers.SlugRelatedField(slug_field='name', queryset=Shop.objects.all()
-    )
+    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
+    shop = serializers.SlugRelatedField(slug_field='name', queryset=Shop.objects.all())
     stock_quantity = serializers.SerializerMethodField()
     qr_code_url = serializers.SerializerMethodField()
 
