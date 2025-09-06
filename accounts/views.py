@@ -133,3 +133,10 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     
 
 
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"message": "Аккаунт успешно удалён."}, status=status.HTTP_204_NO_CONTENT)
