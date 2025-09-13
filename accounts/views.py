@@ -13,6 +13,11 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 
+
+
+
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
@@ -28,6 +33,7 @@ class ResendConfirmationCodeView(APIView):
             serializer.save()
             return Response({'message': 'Код отправлен повторно'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 

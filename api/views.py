@@ -1,10 +1,26 @@
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+import logging
+
 from .models import *
 from .serializers import *
+
+logger = logging.getLogger(__name__)
+
+class SomeAPIView(APIView):
+    def get(self, request):
+        try:
+            logger.debug("of SomeAPIView GET query")
+            return Response({"message": "OK"})
+        except Exception as e:
+            logger.error(f"error  SomeAPIView.get: {e}")
+            raise
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
 
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
